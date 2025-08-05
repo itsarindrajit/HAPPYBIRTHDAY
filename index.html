@@ -344,7 +344,7 @@
                     // Define a threshold for "blowing" - adjusted for RMS and common mic sensitivity
                     // This value (e.g., 80-120) is a good starting point for a "blow" sound.
                     // You might need to adjust this based on your microphone's sensitivity.
-                    const blowThreshold = 100;
+                    const blowThreshold = 70;
 
                     if (averageAmplitude > blowThreshold && !blowDetected) {
                         console.log('Blow detected! Average amplitude:', averageAmplitude);
@@ -403,3 +403,4 @@
     </script>
 </body>
 </html>
+
