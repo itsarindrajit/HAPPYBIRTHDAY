@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday!</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the birthday theme */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to bottom right, #f7d794, #f9c647); /* Warm gradient background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden; /* Prevent scrollbars */
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            max-width: 90%;
+            width: 700px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border: 5px solid #ff7f50; /* Coral border */
+        }
+
+        .candle-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap; /* Allow candles to wrap on smaller screens */
+        }
+
+        .candle {
+            position: relative;
+            width: 40px;
+            height: 120px;
+            background: linear-gradient(to top, #ff6b6b, #ee5253); /* Reddish gradient */
+            border-radius: 8px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .candle:hover {
+            transform: translateY(-5px);
+        }
+
+        .flame {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 30px;
+            background: radial-gradient(circle at center, #ffeb3b, #ff9800, transparent);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            box-shadow: 0 0 15px 5px rgba(255, 165, 0, 0.7);
+            animation: flicker 1.5s infinite alternate;
+            transition: opacity 0.3s ease-out;
+            pointer-events: none; /* Allow clicks to pass through to the candle */
+        }
+
+        .flame.extinguished {
+            opacity: 0;
+        }
+
+        @keyframes flicker {
+            0% { transform: translateX(-50%) scaleY(1); opacity: 1; }
+            50% { transform: translateX(-50%) scaleY(0.95); opacity: 0.9; }
+            100% { transform: translateX(-50%) scaleY(1); opacity: 1; }
+        }
+
+        .surprise-message {
+            background-color: #ffeaa7; /* Light yellow background */
+            border: 3px dashed #fdcb6e; /* Dashed orange border */
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 30px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #d63031; /* Red text */
+            display: none; /* Hidden by default */
+            animation: slideIn 0.8s ease-out forwards;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+        }
+
+        .action-button {
+            background: linear-gradient(to right, #00b894, #00cec9); /* Green-blue gradient */
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .action-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .action-button:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-button.reset-button {
+            background: linear-gradient(to right, #ff7675, #e17055); /* Red-orange gradient */
+        }
+
+        .action-button.skip-button {
+            background: linear-gradient(to right, #a29bfe, #6c5ce7); /* Purple gradient */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            .candle {
+                width: 30px;
+                height: 90px;
+            }
+            .flame {
+                width: 15px;
+                height: 25px;
+                top: -15px;
+            }
+            .surprise-message {
+                font-size: 1.4rem;
+                padding: 20px;
+            }
+            .action-button {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+            .candle-container {
+                gap: 15px;
+            }
+            .button-group {
+                flex-direction: column; /* Stack buttons vertically on small screens */
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 mb-4">Happy Birthday!</h1>
+        <p class="text-lg text-gray-600 mb-8" id="instructionText">Click the candles, blow into your microphone, or skip the blowing!</p>
+
+        <div class="candle-container" id="candleContainer">
+            <!-- Candles will be dynamically added here by JavaScript -->
+        </div>
+
+        <div class="button-group">
+            <button id="skipButton" class="action-button skip-button">Skip Blowing</button>
+            <button id="resetButton" class="action-button reset-button">Reset</button>
+        </div>
+
+        <div id="surpriseMessage" class="surprise-message">
+            <p>Happy birthday, Rimpi! 🎉🎂 Another year older, still young & crazy 😜. Love you, sis! 💕🎁</p>
+        </div>
+    </div>
+
+    <script>
+        // Get references to DOM elements
+        const candleContainer = document.getElementById('candleContainer');
+        const surpriseMessage = document.getElementById('surpriseMessage');
+        const resetButton = document.getElementById('resetButton');
+        const skipButton = document.getElementById('skipButton'); // New skip button
+        const instructionText = document.getElementById('instructionText');
+
+        // Number of candles
+        const numberOfCandles = 5;
+        // Array to keep track of extinguished candles
+        let extinguishedCandles = new Array(numberOfCandles).fill(false);
+
+        // Microphone related variables
+        let audioContext;
+        let analyser;
+        let microphoneSource;
+        let isMicActive = false;
+        let blowDetected = false; // Flag to prevent multiple triggers from one continuous blow
+
+        /**
+         * Creates a single candle element with a flame.
+         * @param {number} index - The index of the candle.
+         * @returns {HTMLElement} The created candle element.
+         */
+        function createCandle(index) {
+            const candleDiv = document.createElement('div');
+            candleDiv.className = 'candle rounded-lg';
+            candleDiv.dataset.index = index; // Store index for easy reference
+
+            const flameDiv = document.createElement('div');
+            flameDiv.className = 'flame';
+            candleDiv.appendChild(flameDiv);
+
+            // Add click listener to extinguish the candle
+            candleDiv.addEventListener('click', () => extinguishCandle(index));
+            return candleDiv;
+        }
+
+        /**
+         * Renders all candles into the container.
+         */
+        function renderCandles() {
+            candleContainer.innerHTML = ''; // Clear existing candles
+            for (let i = 0; i < numberOfCandles; i++) {
+                const candle = createCandle(i);
+                candleContainer.appendChild(candle);
+            }
+            // Initialize extinguishedCandles array based on current candle count
+            extinguishedCandles = new Array(numberOfCandles).fill(false);
+            surpriseMessage.style.display = 'none'; // Hide surprise on initial render
+            blowDetected = false; // Reset blow detection flag
+            instructionText.textContent = 'Click the candles, blow into your microphone, or skip the blowing!';
+            skipButton.disabled = false; // Enable skip button
+        }
+
+        /**
+         * Extinguishes a specific candle.
+         * @param {number} index - The index of the candle to extinguish.
+         */
+        function extinguishCandle(index) {
+            if (!extinguishedCandles[index]) {
+                const candle = candleContainer.querySelector(`[data-index="${index}"]`);
+                if (candle) {
+                    const flame = candle.querySelector('.flame');
+                    if (flame) {
+                        flame.classList.add('extinguished');
+                        extinguishedCandles[index] = true;
+                        checkAllCandlesExtinguished();
+                    }
+                }
+            }
+        }
+
+        /**
+         * Checks if all candles have been extinguished and reveals the surprise if so.
+         */
+        function checkAllCandlesExtinguished() {
+            const allExtinguished = extinguishedCandles.every(isExtinguished => isExtinguished);
+            if (allExtinguished) {
+                surpriseMessage.style.display = 'block'; // Show the surprise
+                stopMicrophoneDetection(); // Stop mic when all candles are out
+                skipButton.disabled = true; // Disable skip button once surprise is revealed
+            }
+        }
+
+        /**
+         * Extinguishes all candles at once (triggered by microphone blow or skip button).
+         */
+        function blowAllCandles() {
+            for (let i = 0; i < numberOfCandles; i++) {
+                extinguishCandle(i);
+            }
+        }
+
+        /**
+         * Starts microphone input detection for blowing.
+         */
+        async function startMicrophoneDetection() {
+            if (isMicActive) return; // Prevent multiple activations
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                microphoneSource = audioContext.createMediaStreamSource(stream);
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256; // Fast Fourier Transform size
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+
+                microphoneSource.connect(analyser);
+                // analyser.connect(audioContext.destination); // Optional: if you want to hear your own mic input
+
+                isMicActive = true;
+                blowDetected = false; // Reset blow detection on start
+                instructionText.textContent = 'Microphone active! Blow into your microphone to extinguish the candles!';
+
+                function detectBlow() {
+                    if (!isMicActive) return; // Stop if mic is deactivated
+
+                    analyser.getByteFrequencyData(dataArray); // Get frequency data
+                    // Calculate average amplitude (a simple way to detect loudness)
+                    let sum = 0;
+                    for (let i = 0; i < bufferLength; i++) {
+                        sum += dataArray[i];
+                    }
+                    const averageAmplitude = sum / bufferLength;
+
+                    // Define a threshold for "blowing" - adjust this value if needed
+                    // This threshold is a rough estimate and might need fine-tuning in different environments.
+                    const blowThreshold = 100;
+
+                    if (averageAmplitude > blowThreshold && !blowDetected) {
+                        console.log('Blow detected! Average amplitude:', averageAmplitude);
+                        blowDetected = true; // Set flag to prevent re-triggering
+                        blowAllCandles(); // Extinguish all candles
+                        // No need to stop mic here, checkAllCandlesExtinguished will stop it
+                    }
+
+                    requestAnimationFrame(detectBlow); // Continue monitoring
+                }
+
+                detectBlow(); // Start the detection loop
+
+            } catch (err) {
+                console.error('Error accessing microphone:', err);
+                // Inform the user about the microphone access issue
+                instructionText.textContent = 'Microphone access denied or unavailable. Please enable microphone permissions in your browser to blow out the candles.';
+            }
+        }
+
+        /**
+         * Stops microphone input detection.
+         */
+        function stopMicrophoneDetection() {
+            if (microphoneSource && microphoneSource.mediaStream) {
+                microphoneSource.mediaStream.getTracks().forEach(track => track.stop());
+                microphoneSource.disconnect();
+                microphoneSource = null;
+            }
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+            isMicActive = false;
+        }
+
+        /**
+         * Resets the website to its initial state.
+         */
+        function resetWebsite() {
+            renderCandles(); // Re-render candles to relight them
+            stopMicrophoneDetection(); // Ensure it's stopped before restarting
+            startMicrophoneDetection(); // Restart mic detection
+        }
+
+        // Event Listeners for buttons
+        resetButton.addEventListener('click', resetWebsite);
+        skipButton.addEventListener('click', blowAllCandles); // Skip button calls blowAllCandles
+
+        // Initial render and start mic detection when the window loads
+        window.onload = function() {
+            renderCandles();
+            startMicrophoneDetection();
+        };
+    </script>
+</body>
+</html>
