@@ -146,6 +146,12 @@
             background: linear-gradient(to right, #a29bfe, #6c5ce7); /* Purple gradient */
         }
 
+        #micLevel {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
         /* Responsive adjustments */
         @media (max-width: 600px) {
             .container {
@@ -182,6 +188,7 @@
     <div class="container">
         <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 mb-4">Happy Birthday!</h1>
         <p class="text-lg text-gray-600 mb-8" id="instructionText">Click the candles, blow into your microphone, or skip the blowing!</p>
+        <div id="micLevel" class="text-sm text-gray-500">Microphone Level: N/A</div>
 
         <div class="candle-container" id="candleContainer">
             <!-- Candles will be dynamically added here by JavaScript -->
@@ -193,7 +200,7 @@
         </div>
 
         <div id="surpriseMessage" class="surprise-message">
-            <p>Happy birthday, Rimpi! 🎉🎂 Another year older, still young & crazy 😜. Love you, sis! 💕🎁</p>
+            <p>🎉 Happy Birthday! Wishing you a day filled with joy, laughter, and all your favorite things! 🎂</p>
         </div>
     </div>
 
@@ -202,8 +209,9 @@
         const candleContainer = document.getElementById('candleContainer');
         const surpriseMessage = document.getElementById('surpriseMessage');
         const resetButton = document.getElementById('resetButton');
-        const skipButton = document.getElementById('skipButton'); // New skip button
+        const skipButton = document.getElementById('skipButton');
         const instructionText = document.getElementById('instructionText');
+        const micLevelDisplay = document.getElementById('micLevel'); // New element to display mic level
 
         // Number of candles
         const numberOfCandles = 5;
@@ -250,6 +258,7 @@
             surpriseMessage.style.display = 'none'; // Hide surprise on initial render
             blowDetected = false; // Reset blow detection flag
             instructionText.textContent = 'Click the candles, blow into your microphone, or skip the blowing!';
+            micLevelDisplay.textContent = 'Microphone Level: N/A'; // Reset mic level display
             skipButton.disabled = false; // Enable skip button
         }
 
@@ -315,25 +324,32 @@
                 instructionText.textContent = 'Microphone active! Blow into your microphone to extinguish the candles!';
 
                 function detectBlow() {
-                    if (!isMicActive) return; // Stop if mic is deactivated
+                    if (!isMicActive) {
+                        micLevelDisplay.textContent = 'Microphone Level: Inactive';
+                        return; // Stop if mic is deactivated
+                    }
 
                     analyser.getByteFrequencyData(dataArray); // Get frequency data
-                    // Calculate average amplitude (a simple way to detect loudness)
-                    let sum = 0;
+                    // Calculate RMS (Root Mean Square) for a more stable amplitude measurement
+                    let sumSquares = 0;
                     for (let i = 0; i < bufferLength; i++) {
-                        sum += dataArray[i];
+                        const value = dataArray[i] / 255; // Normalize to 0-1
+                        sumSquares += value * value;
                     }
-                    const averageAmplitude = sum / bufferLength;
+                    const rms = Math.sqrt(sumSquares / bufferLength);
+                    const averageAmplitude = rms * 255; // Scale back to 0-255 for display/thresholding
 
-                    // Define a threshold for "blowing" - adjust this value if needed
-                    // This threshold is a rough estimate and might need fine-tuning in different environments.
+                    micLevelDisplay.textContent = `Microphone Level: ${averageAmplitude.toFixed(2)}`;
+
+                    // Define a threshold for "blowing" - adjusted for RMS and common mic sensitivity
+                    // This value (e.g., 80-120) is a good starting point for a "blow" sound.
+                    // You might need to adjust this based on your microphone's sensitivity.
                     const blowThreshold = 100;
 
                     if (averageAmplitude > blowThreshold && !blowDetected) {
                         console.log('Blow detected! Average amplitude:', averageAmplitude);
                         blowDetected = true; // Set flag to prevent re-triggering
                         blowAllCandles(); // Extinguish all candles
-                        // No need to stop mic here, checkAllCandlesExtinguished will stop it
                     }
 
                     requestAnimationFrame(detectBlow); // Continue monitoring
@@ -345,6 +361,7 @@
                 console.error('Error accessing microphone:', err);
                 // Inform the user about the microphone access issue
                 instructionText.textContent = 'Microphone access denied or unavailable. Please enable microphone permissions in your browser to blow out the candles.';
+                micLevelDisplay.textContent = 'Microphone Level: Access Denied';
             }
         }
 
@@ -362,6 +379,7 @@
                 audioContext = null;
             }
             isMicActive = false;
+            micLevelDisplay.textContent = 'Microphone Level: Inactive';
         }
 
         /**
